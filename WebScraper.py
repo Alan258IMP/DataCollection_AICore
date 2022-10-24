@@ -39,7 +39,7 @@ class Scraper:
     -------
     '''
 
-    def __init__(self, URL: str, driver: webdriver.Chrome, data_dir: str, headless: bool = False):
+    def __init__(self, driver: webdriver.Chrome, URL: str, data_dir: str = 'raw_data', headless: bool = False):
         if headless:
             chrome_options = Options()
             chrome_options.add_argument("--no-sandbox")
@@ -58,8 +58,15 @@ class Scraper:
         # Accept cookies upon initialization
         self._load_and_accept_cookies()
 
-    def click_button(self, xpath: str):
-        # Find an element and click on it
+    def click_element(self, xpath: str):
+        '''
+        Find an element by Xpath and click on it
+        
+        Parameters
+        ----------
+        xpath : str
+            The Xpath of the element
+        '''
         try:
             button = self.driver.find_element(By.XPATH, xpath)
             button.click()
@@ -67,33 +74,41 @@ class Scraper:
             print("TimeoutException: Button not found")
 
     def _load_and_accept_cookies(self, container_path: str, button_path: str):
-        # XPaths of the container and the accept button needs to be given: Is it a bad practice?
-        # Should I double underscore this?
+        '''        
+        Loads the page and waits for the container to appear. When the container appears, it
+        clicks on the accept button.
+        If the accept cookies button is not found, the code proceeds.
+        
+        Parameters
+        ----------
+        container_path : str
+            The Xpath of the cookies consent container
+        button_path : str
+            The Xpath of the "Accept" button
+        
+        '''
         self.driver.get(self.URL) # Load the page
         delay = 6
         # Note: For xe.com the accept button is: <button class="button__BaseButton-sc-1qpsalo-0 haqezJ">
         # in the box <div class="fluid-container__BaseFluidContainer-qoidzu-0 gHjEXY ConsentBannerstyles__Banner-smyzu-1 dGQMCW">
         try:
             # Wait for the container to appear
-            #WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.XPATH, '//*[@class="fluid-container__BaseFluidContainer-qoidzu-0 gHjEXY ConsentBannerstyles__Banner-smyzu-1 dGQMCW"]')))
             WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.XPATH, container_path)))
             print("Cookies consent container found.")
             # Click on the accept button of the container
             #accept_button = self.driver.find_element(by = By.XPATH, '//*[@class="button__BaseButton-sc-1qpsalo-0 haqezJ"]')
-            self.click_button(self, button_path)
+            self.click_element(self, button_path)
             time.sleep(1)
         except TimeoutException:
             print("Time out: Failed to find the accept cookies button")
             print("Moving on...")
-            # The rest of the script should work properly if the 'accept cookies' button is not found
+            # The rest of the script should work if the 'accept cookies' button is not found
     
     #def find_elements(self, container_path: str):
     # This can be written in the VNDBScraper
 
 
-class VNDBScraper(Scraper):
-    # Inherit Scraper. Consider putting this in a different py file
-    pass
+
     
 
 
