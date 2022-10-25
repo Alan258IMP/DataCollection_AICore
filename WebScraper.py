@@ -3,7 +3,7 @@
 
 import selenium
 from selenium import webdriver
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
@@ -61,6 +61,7 @@ class Scraper:
     def click_element(self, xpath: str):
         '''
         Find an element by Xpath and click on it
+        If the element is not found, a warning will be printed and the code proceeds
         
         Parameters
         ----------
@@ -70,8 +71,8 @@ class Scraper:
         try:
             button = self.driver.find_element(By.XPATH, xpath)
             button.click()
-        except TimeoutException:
-            print("TimeoutException: Button not found")
+        except NoSuchElementException:
+            print("Button not found!")
 
     def _load_and_accept_cookies(self, container_path: str, button_path: str):
         '''        
@@ -104,15 +105,18 @@ class Scraper:
             print("Moving on...")
             # The rest of the script should work if the 'accept cookies' button is not found
     
-    #def find_elements(self, container_path: str):
-    # This can be written in the VNDBScraper
+    def find_elements(self, container_path: str):
+        # This can be written in the VNDBScraper or here
+        '''
+        Returns the xpaths of a list of elements
+        
+        Parameters
+        ----------
+        container_path : str
+            The Xpath of the container containing multiple elements
+        '''
+        # Placeholder
+        pass
 
-
-
-    
-
-
-# Now scrape 
-
-if __name__ == "__main__":
-    scraper = Scraper('https://www.xe.com/', webdriver.Chrome(), '/raw_data')
+#if __name__ == "__main__":
+#    scraper = Scraper('https://www.xe.com/', webdriver.Chrome(), '/raw_data')
