@@ -1,18 +1,15 @@
 # Alan Li, Imperial College London
 # AICore 2022, all rights reserved
 
-import selenium
+#import selenium
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 import time
-import json
-import urllib
-import requests
 import os
-import numpy
 
 class Scraper:
     '''
@@ -47,7 +44,7 @@ class Scraper:
             chrome_options.add_argument('--headless')
             chrome_options.add_argument("--window-size=1600,900")
             chrome_options.add_argument("--start-maximized")
-            self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
+            self.driver = webdriver.Chrome(options=chrome_options)
         else:
             self.driver = driver
         self.URL = URL
@@ -58,21 +55,25 @@ class Scraper:
         # Accept cookies upon initialization
         self._load_and_accept_cookies()
 
-    def click_element(self, xpath: str):
+    def click_element(self, xpath: str, proceed_if_not_found: bool = False):
         '''
-        Find an element by Xpath and click on it
-        If the element is not found, a warning will be printed and the code proceeds
+        Find an element by Xpath and click on it.
         
         Parameters
         ----------
-        xpath : str
+        xpath: str
             The Xpath of the element
+        proceed_if_not_found: bool
+            Whether the code proceed or not if the element is not found
         '''
-        try:
-            button = self.driver.find_element(By.XPATH, xpath)
+        button = self.driver.find_element(By.XPATH, xpath)
+        if proceed_if_not_found:
+            try:
+                button.click()
+            except NoSuchElementException:
+                print("Button not found!")
+        else:
             button.click()
-        except NoSuchElementException:
-            print("Button not found!")
 
     def _load_and_accept_cookies(self, container_path: str, button_path: str):
         '''        

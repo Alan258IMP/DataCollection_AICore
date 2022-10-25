@@ -1,5 +1,5 @@
 from WebScraper import Scraper
-import selenium
+#import selenium
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.support.ui import WebDriverWait
@@ -8,12 +8,16 @@ from selenium.webdriver.chrome.options import Options
 import time
 import json
 import urllib
-import requests
+from uuid import uuid4
 import os
 import pandas as pd
+import ssl
+import datetime
+
+# Skip SSL certificate authentication
+ssl._create_default_https_context = ssl._create_unverified_context
 
 class VNDBScraper(Scraper):
-    # Inherit Scraper. Consider putting this in a different py file
     def __init__(self, driver: webdriver.Chrome = webdriver.Chrome(), URL: str = 'https://vndb.org/v', data_dir: str = 'raw_data', headless: bool = False):
         if headless:
             chrome_options = Options()
@@ -50,18 +54,23 @@ class VNDBScraper(Scraper):
         Go to the next page (works for novel list page only)
         If the button is not found (meaning you're on the last page), the code proceeds.
         '''
-        self.click_element(self, '/html/body/div[4]/form/div[2]/ul[2]/li[1]/a')
+        try:
+            self.click_element(self, '/html/body/div[4]/form/div[2]/ul[2]/li[1]/a')
+        except NoSuchElementException:
+            print("This is the last page.")
     
-    def get_info(self, filename = 'data.json', limit = 50):
+    def get_info(self):
         '''
-        Get the information of all the search results on the page
+        Get the information of all the search results on a single result page.
+        Returns a list of dictionaries containing the information for each result.
         '''
         table = self.driver.find_element(By.XPATH, '/html/body/div[4]/form/div[3]/table/tbody')
         rows = table.find_elements(By.XPATH, './tr')
         table_data = [] # going to be a list of dictionaries
 
-        for row in rows[:5]:
+        for row in rows:
             row_elements = row.find_elements(By.XPATH, './td')
+            unique_id = uuid4()
             title = row_elements[0].text
             release_date = row_elements[3].text
             popularity = row_elements[4].text
@@ -82,25 +91,39 @@ class VNDBScraper(Scraper):
             # Get description page link
             description_page_url = row_elements[0].find_element(By.XPATH, './a').get_attribute('href')
 
-            row_data_dict = {"URL": description_page_url,
-                            "Title": title,
-                            "Platform_available": platforms,
-                            "Language_available": languages,
-                            "Release_date": release_date,
-                            "Popularity": popularity,
-                            "Rating": rating,
-                            "No_of_voters": no_of_voters}
+            row_data_dict = {"id": unique_id,
+                             "URL": description_page_url,
+                             "Title": title,
+                             "Platform_available": platforms,
+                             "Language_available": languages,
+                             "Release_date": release_date,
+                             "Popularity": popularity,
+                             "Rating": rating,
+                             "No_of_voters": no_of_voters}
             table_data.append(row_data_dict)
 
+        #dataframe = pd.DataFrame(table_data) # Not now!
+        #dataframe.to_json('data.json')
+        return table_data
 
-
-        dataframe = pd.DataFrame(table_data)
-        dataframe.to_json('data.json')
+    def download_img(self, URL: str):
+        '''
+        Downloads the image from the description page of a certain visual novel and returns the 
+        URL of the image.
+        '''
+        # Loads the description page
+        self.driver.get(URL)
+        img_holder = self.driver.find_element(By.XPATH, '//*[@class="imghover--visible"]')
+        image = img_holder.find_element(By.XPATH, './img')
+        url_image = image.get_attribute('src')
+        datetime_now = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+        image_id = url[23:].replace('/','') # trims https://s2.vndb.org/cv/
+        filepath = f'raw_data/images/{datetime_now}_{image_id}'
+        urllib.request.urlretrieve(url_image, filepath)
+        return url_image
 
 
 if __name__ == "__main__":
     scraper = VNDBScraper(headless=False)
-    keyword = input()
-    scraper.search_keyword(keyword)
-
+    scraper.search_keyword('black')
     Scraper('https://www.xe.com/', webdriver.Chrome(), '/raw_data')
