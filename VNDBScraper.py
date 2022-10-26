@@ -176,7 +176,7 @@ class VNDBScraper(Scraper):
 
 def start_scrape(keyword: str, limit: int = 300, headless = False):
     '''
-    Search visual novels by keyword, 
+    Search visual novels by keyword.
     
     Parameters
     ----------
