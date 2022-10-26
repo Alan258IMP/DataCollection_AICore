@@ -27,12 +27,6 @@ class Scraper:
     The relative path of the directory in which the data will be stored.
     headless: bool
     When True, the script will run headlessly (to save GPU & CPU when scraping)
-
-    Attributes:
-    ----------
-
-    Methods:
-    -------
     '''
 
     def __init__(self, driver: webdriver.Chrome, URL: str, data_dir: str = 'raw_data', headless: bool = False):
@@ -41,7 +35,6 @@ class Scraper:
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
             chrome_options.add_argument('--headless')
-            chrome_options.add_argument("--window-size=1600,900")
             chrome_options.add_argument("--start-maximized")
             self.driver = webdriver.Chrome(options=chrome_options)
         else:
@@ -65,13 +58,14 @@ class Scraper:
         proceed_if_not_found: bool
             Whether the code proceed or not if the element is not found
         '''
-        button = self.driver.find_element(By.XPATH, xpath)
         if proceed_if_not_found:
             try:
-                button.click()
+                button = self.driver.find_element(By.XPATH, xpath)
             except NoSuchElementException:
                 print("Button not found!")
+            button.click()
         else:
+            button = self.driver.find_element(By.XPATH, xpath)
             button.click()
 
     def _load_and_accept_cookies(self, container_path: str, button_path: str):
@@ -82,9 +76,9 @@ class Scraper:
         
         Parameters
         ----------
-        container_path : str
+        container_path: str
             The Xpath of the cookies consent container
-        button_path : str
+        button_path: str
             The Xpath of the "Accept" button
         
         '''
