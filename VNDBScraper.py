@@ -1,3 +1,6 @@
+# Alan Li, Imperial College London
+# AICore 2022, all rights reserved
+
 from WebScraper import Scraper
 #import selenium
 from selenium import webdriver
@@ -13,9 +16,6 @@ import os
 import pandas as pd
 import ssl
 import datetime
-
-# Skip SSL certificate authentication
-ssl._create_default_https_context = ssl._create_unverified_context
 
 class VNDBScraper(Scraper):
     def __init__(self, driver: webdriver.Chrome = webdriver.Chrome(), URL: str = 'https://vndb.org/v', data_dir: str = 'raw_data', headless: bool = False):
@@ -37,17 +37,35 @@ class VNDBScraper(Scraper):
         # Load page upon initialization (VNDB do not have cookies consent button)
         self.driver.get(self.URL)
 
+    def reload(self):
+        '''
+        Reloads the default page.
+        '''
+        self.driver.get(self.URL)
+    
+    def exit(self):
+        '''
+        Exit the webdriver session
+        '''
+        self.driver.quit()
+
     def search_keyword(self, keyword: str):
         '''
-        Input a keyword into the search field, then click the "search" button
+        Input a keyword into the search field, then click the "search" button.
+        Previous entries will be emptied.
+
+        Parameters
+        ----------
+        keyword : str
+            The keyword to be sent to the search field
         '''
         search_field = self.driver.find_element(By.XPATH, '//*[@id="q"]')
         search_field.clear()
         search_field.send_keys(keyword)
-        search_button = self.driver.find_element(By.XPATH, '/html/body/div[4]/form/div[1]/fieldset/input[2]')
+        search_button = self.driver.find_element(By.XPATH, '//*[@value="Search!"]')
         time.sleep(0.5)
         search_button.click()
-        time.sleep(1)
+        time.sleep(0.5)
 
     def next(self):
         '''
@@ -58,6 +76,7 @@ class VNDBScraper(Scraper):
             self.click_element(self, '/html/body/div[4]/form/div[2]/ul[2]/li[1]/a')
         except NoSuchElementException:
             print("This is the last page.")
+            return False
     
     def get_info(self):
         '''
@@ -117,8 +136,10 @@ class VNDBScraper(Scraper):
         image = img_holder.find_element(By.XPATH, './img')
         url_image = image.get_attribute('src')
         datetime_now = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-        image_id = url[23:].replace('/','') # trims https://s2.vndb.org/cv/
+        image_id = url_image[23:].replace('/','') # trims https://s2.vndb.org/cv/
         filepath = f'raw_data/images/{datetime_now}_{image_id}'
+        # Skip SSL certificate authentication (for urllib to not run into error)
+        ssl._create_default_https_context = ssl._create_unverified_context
         urllib.request.urlretrieve(url_image, filepath)
         return url_image
 

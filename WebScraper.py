@@ -1,7 +1,6 @@
 # Alan Li, Imperial College London
 # AICore 2022, all rights reserved
 
-#import selenium
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.support import expected_conditions as EC
@@ -91,33 +90,14 @@ class Scraper:
         '''
         self.driver.get(self.URL) # Load the page
         delay = 6
-        # Note: For xe.com the accept button is: <button class="button__BaseButton-sc-1qpsalo-0 haqezJ">
-        # in the box <div class="fluid-container__BaseFluidContainer-qoidzu-0 gHjEXY ConsentBannerstyles__Banner-smyzu-1 dGQMCW">
         try:
             # Wait for the container to appear
             WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.XPATH, container_path)))
             print("Cookies consent container found.")
             # Click on the accept button of the container
-            #accept_button = self.driver.find_element(by = By.XPATH, '//*[@class="button__BaseButton-sc-1qpsalo-0 haqezJ"]')
             self.click_element(self, button_path)
             time.sleep(1)
         except TimeoutException:
             print("Time out: Failed to find the accept cookies button")
             print("Moving on...")
-            # The rest of the script should work if the 'accept cookies' button is not found
-    
-    def find_elements(self, container_path: str):
-        # This can be written in the VNDBScraper or here
-        '''
-        Returns the xpaths of a list of elements
-        
-        Parameters
-        ----------
-        container_path : str
-            The Xpath of the container containing multiple elements
-        '''
-        # Placeholder
-        pass
-
-#if __name__ == "__main__":
-#    scraper = Scraper('https://www.xe.com/', webdriver.Chrome(), '/raw_data')
+            # The code proceeds if the 'accept cookies' button is not found
