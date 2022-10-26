@@ -1,11 +1,8 @@
 # Alan Li, Imperial College London
 # AICore 2022, all rights reserved
 
-#from email.policy import default
 import unittest
 from selenium.webdriver.common.by import By
-import os
-from WebScraper import Scraper
 from VNDBScraper import VNDBScraper
 import time
 
