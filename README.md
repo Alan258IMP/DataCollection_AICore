@@ -6,9 +6,9 @@ This project requires [Selenium](https://github.com/SeleniumHQ/selenium/tree/tru
 
 ## Milestone 1 ~ 3: Prototyping the web scraper
 
-The website I am scraping is [VNDB](https://vndb.org/), a visual novel wiki, because it is a website that does not change its layout very often. We aim to collect the data from top-rated visual novels with a certain keyword or genre.
+The website I am scraping is [VNDB](https://vndb.org/), a visual novel wiki, because it is a website that does not change its layout very often. The script will be able to collect the data from top-rated visual novels with a certain keyword or genre.
 
-I created a general-purpose basic scraper class with Selenium, with basic functionalities including clicking on elements by Xpath and accepting cookies applicable for all websites. We then created a child class of our basic scraper named VNDBScraper in a separate file, which is dedicated to the VNDB website.
+I created a general-purpose basic scraper class with Selenium, with basic functionalities including clicking on elements by Xpath and accepting cookies applicable for all websites. I then created a child class of our basic scraper named VNDBScraper in a separate file, which is dedicated to the VNDB website.
 
 ## Milestone 4: Retrieving image & text data
 
@@ -20,10 +20,22 @@ I tested all the methods of VNDBScraper class with the built-in unittest module 
 
 ## Milestone 6: Create a docker image to run our scraper
 
-We created a dockerfile according to the instructions given in [docker_selenium.md](https://aicore-files.s3.amazonaws.com/Foundations/DevOps/docker_selenium.md) and built a docker image to run our scraper.
+I created a dockerfile according to the instructions given in [docker_selenium.md](https://aicore-files.s3.amazonaws.com/Foundations/DevOps/docker_selenium.md) and built a docker image to run our scraper.
 
 The command used are as follows:
 
+To build the image:
+```
+docker build -t vndbscraper
+```
 
+To push the container to Dockerhub:
+```
+docker tag vndbscraper alanimp18/vndbscraper_img
+docker push alanimp18/vndbscraper_img
+```
 
+## Milestone 7: Setup the Github secrets
+
+I setup the Github secrets which contains the credentials required to log into my dockerhub repo. I also created a GitHub action that builds and pushes Docker image to DockerHub repo.
 
