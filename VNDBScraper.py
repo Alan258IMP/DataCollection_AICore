@@ -217,5 +217,6 @@ def start_scrape(keyword: str, limit: int = 300, headless = False):
     print('Closing the session...')
 
 if __name__ == "__main__":
-    start_scrape('black', headless = True)
+    keyword = input('Type the keyword you would like to search for')
+    start_scrape(keyword, headless = True)
     
