@@ -16,7 +16,13 @@ In the VNDBScraper class, I created a method named download_img() which download
 
 ## Milestone 5: Testing
 
-I tested all the methods of VNDBScraper class with the built-in unittest module and made sure that all the public methods are running error-free and giving the output as intended.
+I tested all the methods of VNDBScraper class with the built-in unittest module and made sure that all the public methods are running error-free and giving the output as intended. For example I confirmed the get_info() method correctly gives a list of dictionaries, each encodes all available information for a search result.
+
+## Milestone 6: Create a docker image to run our scraper
+
+We created a dockerfile according to the instructions given in [docker_selenium.md](https://aicore-files.s3.amazonaws.com/Foundations/DevOps/docker_selenium.md) and built a docker image to run our scraper.
+
+The command used are as follows:
 
 
 
