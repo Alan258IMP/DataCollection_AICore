@@ -5,12 +5,9 @@ from WebScraper import Scraper
 #import selenium
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 import time
-import json
-import requests
 import urllib.request
 from uuid import uuid4
 import os
