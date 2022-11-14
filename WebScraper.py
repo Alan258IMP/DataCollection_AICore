@@ -7,8 +7,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
-import time
 import os
+import chromedriver_binary
 
 class Scraper:
     '''
@@ -29,7 +29,7 @@ class Scraper:
     When True, the script will run headlessly (to save GPU & CPU when scraping)
     '''
 
-    def __init__(self, driver: webdriver.Chrome, URL: str, data_dir: str = 'raw_data', headless: bool = False):
+    def __init__(self, URL: str, driver: webdriver.Chrome = webdriver.Chrome(), data_dir: str = 'raw_data', headless: bool = False):
         if headless:
             chrome_options = Options()
             chrome_options.add_argument("--no-sandbox")
@@ -42,12 +42,11 @@ class Scraper:
         self.URL = URL
         self.data_dir = data_dir
         # If directory not found, create one
-        if os.path.exists() == False:
+        if os.path.exists(data_dir) == False:
             os.mkdir(data_dir)
-        # Accept cookies upon initialization
-        self._load_and_accept_cookies()
+        self.driver.get(self.URL)
 
-    def click_element(self, xpath: str, proceed_if_not_found: bool = False):
+    def click_element(self, xpath: str):
         '''
         Find an element by Xpath and click on it.
         
@@ -55,18 +54,12 @@ class Scraper:
         ----------
         xpath: str
             The Xpath of the element
-        proceed_if_not_found: bool
-            Whether the code proceed or not if the element is not found
         '''
-        if proceed_if_not_found:
-            try:
-                button = self.driver.find_element(By.XPATH, xpath)
-            except NoSuchElementException:
-                print("Button not found!")
-            button.click()
-        else:
+        try:
             button = self.driver.find_element(By.XPATH, xpath)
-            button.click()
+        except NoSuchElementException:
+            print("Button not found!")
+        button.click()
 
     def _load_and_accept_cookies(self, container_path: str, button_path: str):
         '''        
@@ -87,11 +80,7 @@ class Scraper:
         try:
             # Wait for the container to appear
             WebDriverWait(self.driver, delay).until(EC.presence_of_element_located((By.XPATH, container_path)))
-            print("Cookies consent container found.")
-            # Click on the accept button of the container
             self.click_element(self, button_path)
-            time.sleep(1)
         except TimeoutException:
             print("Time out: Failed to find the accept cookies button")
             print("Moving on...")
-            # The code proceeds if the 'accept cookies' button is not found

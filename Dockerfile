@@ -22,5 +22,8 @@ RUN unzip /tmp/chromedriver.zip chromedriver -d /usr/local/bin/
 #Install all the dependencies for our code
 RUN pip install -r requirements.txt
 
+#Separately force reinstall chromedriver binary to avoid error
+#RUN pip install --upgrade --force-reinstall chromedriver-binary-auto
+
 #When we run container, this is the command to be run
 ENTRYPOINT ["python3", "VNDBScraper.py"]

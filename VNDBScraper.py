@@ -7,13 +7,16 @@ from selenium import webdriver
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 import time
 import urllib.request
 from uuid import uuid4
-import os
 import pandas as pd
 import ssl
 import datetime
+import os
+import chromedriver_binary
 
 class VNDBScraper(Scraper):
     '''
@@ -28,23 +31,8 @@ class VNDBScraper(Scraper):
     headless: bool
     When True, the script will run headlessly (to save GPU & CPU when scraping)
     '''
-    def __init__(self, driver: webdriver.Chrome = webdriver.Chrome(), data_dir: str = 'raw_data', headless: bool = False):
-        if headless:
-            chrome_options = Options()
-            chrome_options.add_argument("--no-sandbox")
-            chrome_options.add_argument("--disable-dev-shm-usage")
-            chrome_options.add_argument('--headless')
-            chrome_options.add_argument("--start-maximized")
-            self.driver = webdriver.Chrome(options=chrome_options)
-        else:
-            self.driver = driver
-        self.URL = 'https://vndb.org/v'
-        self.data_dir = data_dir
-
-        if os.path.exists(data_dir) == False:
-            os.mkdir(data_dir)
-        # Load page upon initialization (VNDB do not have cookies consent button)
-        self.driver.get(self.URL)
+    def __init__(self, URL: str = 'https://vndb.org/v', driver: webdriver.Chrome = webdriver.Chrome(), data_dir: str = 'raw_data', headless: bool = False):
+        super().__init__(URL = 'https://vndb.org/v')
 
     def reload(self):
         '''
@@ -68,21 +56,19 @@ class VNDBScraper(Scraper):
         keyword: str
             The keyword to be sent to the search field
         '''
-        search_field = self.driver.find_element(By.XPATH, '//*[@id="q"]')
+        search_field = WebDriverWait(self.driver, 5).until(EC.presence_of_element_located((By.XPATH, '//*[@id="q"]')))
+        #self.driver.find_element(By.XPATH, '//*[@id="q"]')
         search_field.clear()
         search_field.send_keys(keyword)
         search_button = self.driver.find_element(By.XPATH, '//*[@value="Search!"]')
-        time.sleep(0.5)
         search_button.click()
-        time.sleep(0.5)
 
     def next(self):
         '''
-        Go to the next page (works for novel list page only)
-        If the button is not found (meaning you're on the last page), the code proceeds.
-        Returns True if the button is found and False if it cannot be found.
+        Go to the next page (works for novel list page only).
         '''
-        nav_bar = self.driver.find_element(By.XPATH, '//*[@class="maintabs browsetabs "]')
+        nav_bar = WebDriverWait(self.driver, 5).until(EC.presence_of_element_located((By.XPATH, '//*[@class="maintabs browsetabs "]')))
+        #self.driver.find_element(By.XPATH, '//*[@class="maintabs browsetabs "]')
         next_button = nav_bar.find_element(By.XPATH, './ul[2]/li[1]/a')
         next_button.click()
     
@@ -125,6 +111,7 @@ class VNDBScraper(Scraper):
             for language in languages_img:
                 languages.append(language.get_attribute('title'))
             languages = ", ".join(languages)
+
             # Get description page link
             description_page_url = row_elements[0].find_element(By.XPATH, './a').get_attribute('href')
 
