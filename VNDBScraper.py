@@ -9,7 +9,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-import time
 import urllib.request
 from uuid import uuid4
 import pandas as pd
@@ -182,15 +181,12 @@ def start_scrape(keyword: str, limit: int = 300, headless = False):
             print('Scraping finished - Limit reached')
             break
         # Try going to the next page
-        time.sleep(0.5)
         try:
             scraper.next()
-            time.sleep(0.5)
             print('Next page...')
         except NoSuchElementException:
             print('Scraping finished - Last page scraped.')
             break
-        time.sleep(0.5)
 
     print(len(results), ' results collected') # debug
     print('Storing data...')
@@ -199,7 +195,6 @@ def start_scrape(keyword: str, limit: int = 300, headless = False):
     dataframe.to_json(storage_path)
     # Finish scraping, close the webdriver session and save data
     print('Data storage complete!')
-    time.sleep(0.5)
     scraper.exit()
     print('Closing the session...')
 
